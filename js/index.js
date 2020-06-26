@@ -40,7 +40,8 @@ Mine.prototype.init=function(){
 			//n++;
 			//格子数是否在雷所在的位置randomNum
 			//取一个方块在数组里的数据要使用行与列的形式去取。找方块周围的方块的时候要用坐标的形式去取。行与列的形式跟坐标的形式x,y是刚好相反的
-			if(rn.indexOf(++n)!=-1){
+			//关于雷的数量不符的问题，因雷是随机分布，若为++n则表示把n=0排除在外，当随机分布的雷中有一个正好在n=0时，会出现有一个雷并没有赋予mine属性
+			if(rn.indexOf(n++)!=-1){
 				//如果这个条件成立，说明现在循环到的这个索引在雷的数组里找到了，那就表示这个索引对应的是个雷
 				this.squares[i][j]={type:'mine',x:j,y:i,value:0};
 			}else{
@@ -102,12 +103,14 @@ Mine.prototype.createDom=function(){
 			// 	console.log(domTd);
 			// 	console.log("zheli");
 			// }
-			/* if(this.squares[i][j].type=='mine'){
-				domTd.className='mine'
+			if(this.squares[i][j].type=='mine'){
+				// domTd.className='mine'
+				console.log(domTd);
+
 			}
-			if(this.squares[i][j].type=='number'){
-				domTd.innerHTML=this.squares[i][j].value;
-			} */
+			// if(this.squares[i][j].type=='number'){
+			// 	domTd.innerHTML=this.squares[i][j].value;
+			// } 
 			domTr.appendChild(domTd);//动态插入到页面中
 		}
 
@@ -367,6 +370,8 @@ Mine.prototype.gameOver=function(){
 			if(this.squares[i][j].type=='mine'){
 				this.tds[i][j].className='mine';
 				this.tds[i][j].innerHTML="";
+				// 调试雷数量不符？
+				console.log(this.tds[i][j]);
 				
 
 			}
@@ -387,7 +392,7 @@ Mine.prototype.gameOver=function(){
 var btns=document.querySelectorAll('.level button');
 var mine=null;	//用来存储生成的实例
 var ln=0;	//用来处理当前选中的状态
-var arr=[[9,9, Math.floor(Math.random() * 3) + 8],[16,16,Math.floor(Math.random() * 4) + 36],[28,28,Math.floor(Math.random() * 10) + 90]];	//不同级别的行数列数雷数
+var arr=[[9,9, Math.floor(Math.random() * 3) + 8],[16,16,Math.floor(Math.random() * 4) + 37],[28,28,Math.floor(Math.random() * 8) + 92]];	//不同级别的行数列数雷数
 
 for(let i=0;i<btns.length-1;i++){
 	btns[i].onclick=function(){
