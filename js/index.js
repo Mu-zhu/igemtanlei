@@ -13,6 +13,7 @@ function Mine(tr,td,mineNum){
 	this.squares=[];	//存储所有方块的信息，方块类型，坐标以及value，它是一个二维数组，按行与列的顺序排放。存取都使用行列的形式
 	this.tds=[];		//存储所有的单元格的DOM对象(二维数组)tr，td动态创建后存下来，后续要拿到格子操作样式,和squares对象一一对应
 	this.surplusMine=mineNum;	//剩余雷的数量，表小红旗时，数量显示减少
+	
 	this.allRight=false;	//右击标的小红旗是否全是雷。用来判断用户是否游戏成功
 // 这里考虑加一个小红旗背后是雷的真实数量
 
@@ -72,9 +73,11 @@ Mine.prototype.init=function(){
 		return false;
 	}
 
-	//剩余雷数
+	//剩余雷数  增加
 	this.mineNumDom=document.querySelector('.mineNum');
 	this.mineNumDom.innerHTML=this.surplusMine;
+	this.surNumDom=document.querySelector('.surNum');
+	this.surNumDom.innerHTML=this.mineNum - this.surplusMine;
 };
 
 //创建表格，
@@ -248,7 +251,7 @@ Mine.prototype.play=function(ev,obj){
 			obj.innerHTML=curSquare.value;
 			obj.className=cl[curSquare.value];
 			
-			obj.style.backgroundColor='#4ab5eb';
+			// obj.style.backgroundColor='#4ab5eb';
 			
      		// this.gameOver(obj);
 		}
@@ -258,10 +261,11 @@ Mine.prototype.play=function(ev,obj){
 	if(ev.which==3){
 		//如果右击的是一个数字，那就不能点击
 		this.clickNum++;
-		if(obj.className && obj.className!='flag'){
-			return;
-		}
+		// if(obj.className && obj.className!='flag'){
+		// 	return;
+		// }
 		obj.className=obj.className=='flag'?'':'flag';	//切换CLASS
+		obj.innerHTML='';
 
 		if(this.squares[obj.pos[0]][obj.pos[1]].type=='mine'){
 			this.allRight=true;	//用户标的小红旗背后都是雷（判断目前点击的那个）
@@ -276,8 +280,10 @@ Mine.prototype.play=function(ev,obj){
 
 		if(obj.className=='flag'){
 			this.mineNumDom.innerHTML=--this.surplusMine;
+			this.surNumDom.innerHTML=this.mineNum - this.surplusMine;
 		}else{
 			this.mineNumDom.innerHTML=++this.surplusMine;
+			this.surNumDom.innerHTML=this.mineNum - this.surplusMine;
 		}
 
 		// if(this.surplusMine==0||this.leftNum+this.mineNum-this.surplusMine==this.td*this.tr){
@@ -315,17 +321,20 @@ Mine.prototype.play=function(ev,obj){
 		// 	alert('游戏失败');
 		// 	// this.gameOver();
 		// }
+		//尝试将时间加入到alert中
+		var alertEle = document.getElementById("time").value;
 		if(this.trueNum==this.mineNum){
-			alert("恭喜您，成功探完所有雷！您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + this.trueNum +" 分!！棒棒哒~");
+			alert("恭喜您，成功探完所有雷！\n您的点击次数为 " + this.clickNum + " ;\n所用时间为 " + alertEle +" 秒;\n您的最终得分为 " + 2*this.trueNum +" 分!！\n棒棒哒~");
 		}else{
 			//加个兼容，最低得分为零
-			var count = this.trueNum-(this.mineNum-this.trueNum);
+			var count = 2*this.trueNum;
 			console.log( ' leishu'+this.mineNum+'defen'+count);
-			if(count<=0){
-				alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + "0 分，继续加油哦~");
-			}else{
-				alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + count + " 分，继续加油哦~");
-			}
+			// if(count<=0){
+			// 	alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + "0 分，继续加油哦~");
+			// }else{
+			// 	alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + count + " 分，继续加油哦~");
+			// }
+			alert("游戏结束\n您的点击次数为 " + this.clickNum + " ;\n所用时间为 " + alertEle +" 秒 ;\n最终得分为 " + count + " 分，\n继续加油哦~");
 
 			
 		}
