@@ -7,6 +7,8 @@ function Mine(tr,td,mineNum){
 	this.trueNum=0;
 	//尝试记录点击次数
 	this.clickNum=0;
+	//增加左键点击次数，用来记录已经探过的格子总数
+	this.leftNum=0;
 
 	this.squares=[];	//存储所有方块的信息，方块类型，坐标以及value，它是一个二维数组，按行与列的顺序排放。存取都使用行列的形式
 	this.tds=[];		//存储所有的单元格的DOM对象(二维数组)tr，td动态创建后存下来，后续要拿到格子操作样式,和squares对象一一对应
@@ -88,13 +90,18 @@ Mine.prototype.createDom=function(){
 			//domTd.innerHTML=0;
 
 			domTd.pos=[i,j];	//把格子对应的行与列存到格子身上，为了下面通过这个值去数组里取到对应的数据
+			domTd.trueleft=false;//设置所有元素的左键点击为false，后续点击后设置为true，用此属性记录leftNum
 			domTd.onmousedown=function(){
 				This.play(event,this);	//This指的实例对象，this指的点击的那个td
 				this.clickNum++;
 			};
-
+			// console.log(domTd);
 			this.tds[i][j]=domTd;	//这里是把所有创建的td添加到数组当中 
-
+			// if(this.squares[i][j].type=='mine'){
+			// 	domTd.className='mine'
+			// 	console.log(domTd);
+			// 	console.log("zheli");
+			// }
 			/* if(this.squares[i][j].type=='mine'){
 				domTd.className='mine'
 			}
@@ -172,20 +179,23 @@ Mine.prototype.updateNum=function(){
 
 Mine.prototype.play=function(ev,obj){
 	var This=this;
-	if(ev.which==1 && obj.className!='flag'){	//后面的条件是为了限制用户标完小红旗后就不能够左键点击
+	if(ev.which==1 && obj.className!='flag'&&!obj.trueleft){	//后面的条件是为了限制用户标完小红旗后就不能够左键点击
 		//点击的是左键
 		//console.log(obj);
 		//当前点击的元素在数组中的数据
+		obj.trueleft=true;
 		this.clickNum++;
+		//这里记录实际的左键点击（能确切显示数字的点击）
+		this.leftNum++;
 		var curSquare=this.squares[obj.pos[0]][obj.pos[1]];
 		var cl=['zero','one','two','three','four','five','six','seven','eigth'];
-
+		// console.log(curSquare);  {type: "number", x: 4, y: 2, value: 1}
 		if(curSquare.type=='number'){
 			//用户点到的是数字
 			// console.log('你点到数字了！')
 			obj.innerHTML=curSquare.value;
 			obj.className=cl[curSquare.value];
-			console.log(curSquare.value);
+			// console.log(curSquare.value);
 
 			if(curSquare.value==0){
 				/* 
@@ -257,7 +267,7 @@ Mine.prototype.play=function(ev,obj){
 			this.trueNum++;
 		}else{
 			this.allRight=false;
-			this.trueNum--;
+			// this.trueNum--;
 		}
 
 
@@ -267,22 +277,56 @@ Mine.prototype.play=function(ev,obj){
 			this.mineNumDom.innerHTML=++this.surplusMine;
 		}
 
-		if(this.surplusMine==0){
-			//剩余的雷的数量为0，表示用户已经标完小红旗了，这时候要判断游戏是成功还是结束
-			// if(this.allRight){
-			// 	//这个条件成立说明用户全部标对了
-			// 	alert('恭喜你，游戏通过');
-			// }else{
-			// 	alert('游戏失败');
-			// 	// this.gameOver();
-			// }
-			if(this.trueNum==this.mineNum){
-				alert("恭喜您，成功探完所有雷！您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + this.trueNum +" 分!！棒棒哒~");
+		// if(this.surplusMine==0||this.leftNum+this.mineNum-this.surplusMine==this.td*this.tr){
+		// 	//剩余的雷的数量为0，表示用户已经标完小红旗了，或者用户点击的格子和插旗的格子总数为总格子数，这时候要判断游戏是成功还是结束
+		// 	// if(this.allRight){
+		// 	// 	//这个条件成立说明用户全部标对了
+		// 	// 	alert('恭喜你，游戏通过');
+		// 	// }else{
+		// 	// 	alert('游戏失败');
+		// 	// 	// this.gameOver();
+		// 	// }
+		// 	if(this.trueNum==this.mineNum){
+		// 		alert("恭喜您，成功探完所有雷！您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + this.trueNum +" 分!！棒棒哒~");
+		// 	}else{
+		// 		//加个兼容，最低得分为零
+		// 		var count = this.trueNum-(this.mineNum-this.trueNum);
+		// 		console.log( ' leishu'+this.mineNum+'defen'+count);
+		// 		if(count<=0){
+		// 			alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + "0 分，继续加油哦~");
+		// 		}else{
+		// 			alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + count + " 分，继续加油哦~");
+		// 		}
+
+				
+		// 	}
+		// 	this.gameOver();
+		// }
+	}
+	if(this.surplusMine==0||this.leftNum+this.mineNum-this.surplusMine==this.td*this.tr){
+		//剩余的雷的数量为0，表示用户已经标完小红旗了，或者用户点击的格子和插旗的格子总数为总格子数，这时候要判断游戏是成功还是结束
+		// if(this.allRight){
+		// 	//这个条件成立说明用户全部标对了
+		// 	alert('恭喜你，游戏通过');
+		// }else{
+		// 	alert('游戏失败');
+		// 	// this.gameOver();
+		// }
+		if(this.trueNum==this.mineNum){
+			alert("恭喜您，成功探完所有雷！您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + this.trueNum +" 分!！棒棒哒~");
+		}else{
+			//加个兼容，最低得分为零
+			var count = this.trueNum-(this.mineNum-this.trueNum);
+			console.log( ' leishu'+this.mineNum+'defen'+count);
+			if(count<=0){
+				alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + "0 分，继续加油哦~");
 			}else{
-				alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + this.trueNum + " 分，继续加油哦~");
+				alert("游戏结束，您的点击次数为 " + this.clickNum + " ;您的最终得分为 " + count + " 分，继续加油哦~");
 			}
-			this.gameOver();
+
+			
 		}
+		this.gameOver();
 	}
 	
 };
@@ -358,7 +402,15 @@ for(let i=0;i<btns.length-1;i++){
 }
 btns[0].onclick();	//初始化一下
 btns[3].onclick=function(){
+	
+	mine.surplusMine=mine.mineNum;	//初始时雷的数量
 	mine.init();
+	//尝试增加 小红旗背后是不是雷，记录准确探雷的数量
+	mine.trueNum=0;
+	//尝试记录点击次数
+	mine.clickNum=0;
+	//增加左键点击次数，用来记录已经探过的格子总数
+	mine.leftNum=0;
 }
 
 
